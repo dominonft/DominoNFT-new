@@ -26,8 +26,6 @@ contract DomInvitation is Ownable {
     IERC20 public usdtToken;
 
     uint256[2] public marketList = [30, 25];
-    // uint256[10] public marketList = [25, 6, 10, 6, 10, 6, 10, 6, 15, 6];
-    //uint256[6] public levelList = [0, 100*1e18, 300*1e18, 500*1e18, 1000*1e18, 1500*1e18];
     uint256[6] public levelList = [0, 100*1e18, 200*1e18, 200*1e18, 500*1e18, 500*1e18];
     
     mapping(address => user) public Users;
@@ -51,17 +49,17 @@ contract DomInvitation is Ownable {
     }
 
     function level_init() internal {
-        // init level 0
+        // vip level 0
         levelReferMap[0] = [0, 0];
-        // init level 1
+        // vip level 1
         levelReferMap[1] = [15, 10];
-        // init level 2
+        // vip level 2
         levelReferMap[2] = [16, 11];
-        // init level 3
+        // vip level 3
         levelReferMap[3] = [18, 13];
-        // init level 4
+        // vip level 4
         levelReferMap[4] = [20, 15];
-        // init level 5
+        // vip level 5
         levelReferMap[5] = [25, 20];
     }
 
@@ -159,25 +157,8 @@ contract DomInvitation is Ownable {
     }
 
     function marketReward(address _userAddr, uint256 _amount) internal{
-        address preAddr = Users[_userAddr].referrer;
-        uint256 amount = _amount.div(2);
-        uint256 rewardTotalAmount = 0;
-        for(uint256 i = 0; i < 2; i++) {
-
-            if(preAddr == address(0)) {
-                break;
-            }
-            uint256 level = Users[preAddr].level;
-            
-            if(i<level.mul(2)) {
-                uint256 rewardAmount = amount.mul(marketList[i]).div(100);
-                domToken.transferFrom(msg.sender, preAddr, rewardAmount);
-                rewardTotalAmount = rewardTotalAmount.add(rewardAmount);
-            }
-            
-            preAddr = Users[preAddr].referrer;
-        }
-        domToken.transferFrom(msg.sender, dead, _amount.sub(rewardTotalAmount));
+        
+        domToken.transferFrom(msg.sender, dead, _amount);
         emit Burn(msg.sender, _amount.sub(rewardTotalAmount));
     }
 }
