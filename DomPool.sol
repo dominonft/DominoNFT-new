@@ -6,8 +6,9 @@ import "./IInvite.sol";
 import "./SafeERC20.sol";
 import "./ERC20.sol";
 import "./PriceLibrary.sol";
+import "./ReentrancyGuard.sol";
 
-contract DomPool is Ownable, ERC20 {
+contract DomPool is Ownable, ERC20, ReentrancyGuard {
 
     using SafeMath for  uint256;
     using SafeERC20 for IERC20;
@@ -68,7 +69,7 @@ contract DomPool is Ownable, ERC20 {
     uint256 public rewardPerTokenStored;
 
     bool public paused = false;
-    bool public transferPaused = true;
+    bool public transferPaused = false;
     // dom tokens created per block.
     uint256 public domsPerBlock;
 
@@ -236,7 +237,7 @@ contract DomPool is Ownable, ERC20 {
         );
     }
 
-    function earned(address account) public view returns (uint256) {
+    function earned(address account) public view returns (uint256)  {
         (uint256 multiplier,uint256 curHash) = getMultiplier(lastUpdateBlock,block.number);
         uint domactul = multiplier.mul(domsPerBlock).mul(curHash).div(THRESHOLD).div(BASE_INIT);
         return
@@ -270,7 +271,7 @@ contract DomPool is Ownable, ERC20 {
         yopt = _totalSupply==0?0:yopt*cic/_totalSupply;
     }
     
-    function deposit(uint256 _pid, uint256 _amountT, uint256 _rid) public notPause {
+    function deposit(uint256 _pid, uint256 _amountT, uint256 _rid) public notPause nonReentrant{
         Pool storage pool = pools[_pid];
         require(pool.status,"closed");
         updateReward(msg.sender);
