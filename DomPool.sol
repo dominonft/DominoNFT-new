@@ -99,7 +99,7 @@ contract DomPool is Ownable, ERC20 {
     }
 
     modifier transferNotPause() {
-        require(paused == false, "Mining has been suspended");
+        require(transferPaused == false, "transfer has been suspended");
         _;
     }
  
