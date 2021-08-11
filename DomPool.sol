@@ -21,9 +21,12 @@ contract DomPool is Ownable, ERC20, ReentrancyGuard {
         uint256 _startBlock
     ) 
     public ERC20 ("Dom HashRate","DHR")
-    {
+    {   
+        require(_usdt != address(0), "DomPool: set usdt to the zero address.");
         usdt = _usdt;
+        require(_factory != address(0), "DomPool: set factory to the zero address."); 
         factory = _factory;
+        require(address(_dom) != address(0), "DomPool: set dom to the zero address."); 
         dom = _dom;
         domsPerBlock = _domsPerBlock;
         startBlock = _startBlock;
@@ -55,13 +58,13 @@ contract DomPool is Ownable, ERC20, ReentrancyGuard {
     // The block number when doms mining starts.
     uint256 public startBlock;
     
-    uint256 public feeA = 100;
-    uint256 public feeB = 100;
-    address public feeOwner = 0xEEe4051F285bCbb35e4ca7BDB162583f990E0Cad;
+    uint256 public constant feeA = 100;
+    uint256 public  constant feeB = 100;
+    address public constant feeOwner = 0xEEe4051F285bCbb35e4ca7BDB162583f990E0Cad;
     
-    uint256 internal DIVISOR = 100;
-    uint256 internal BASE_INIT = 1000000;
-    uint256 internal BASE_RATE = 5;
+    uint256 internal constant DIVISOR = 100;
+    uint256 internal constant BASE_INIT = 1000000;
+    uint256 internal  constant BASE_RATE = 5;
 
     uint256 constant internal REDUCE_PERIOD = 864000;
     uint256 constant internal THRESHOLD = 5000000 * 1e18 ;
@@ -201,12 +204,11 @@ contract DomPool is Ownable, ERC20, ReentrancyGuard {
     function updateAndMint() internal returns( uint domincr, uint domactul, uint burned ) {
         (uint256 multiplier,uint256 curHash) = getMultiplier(lastUpdateBlock,block.number);
         domincr = multiplier.mul(domsPerBlock).div(BASE_INIT);
-        //bool _minted = dom.mint(address(this), domincr);
-        //if(_minted){
+        
         domactul = domincr.mul(curHash).div(THRESHOLD);
         burned = domincr.sub(domactul);
         if(burned>0) dom.safeTransfer(dead,burned);
-        //}
+    
     }
 
     function updateReward(address account) public returns(uint256) {
@@ -437,7 +439,7 @@ contract DomPool is Ownable, ERC20, ReentrancyGuard {
 
 
     function bonusEndBlock(uint256 _period) public view returns (uint) {
-        return startBlock.mul(_period+1).mul(REDUCE_PERIOD);
+        return startBlock.add((_period+1).mul(REDUCE_PERIOD));
     }
 
     function period(uint256 blockNumber) public view returns (uint _period) {

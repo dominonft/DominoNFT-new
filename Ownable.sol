@@ -53,4 +53,12 @@ contract Ownable is OwnableData {
         require(msg.sender == owner, "Ownable: caller is not the owner");
         _;
     }
+
+
+    function renounceOwnership() public onlyOwner { 
+        emit OwnershipTransferred(owner, address(0)); 
+        owner = address(0);
+        pendingOwner = address(0);
+    }
+    
 }

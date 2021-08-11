@@ -16,7 +16,7 @@
         }
 
         uint256 public userCount;
-        address public primaryAddr = 0x4d5F606bD431346d67D99420dB1631aF6BEBA0F8;
+        address public primaryAddr = 0x5baa5EA4a9C9E17cF3c71Da7a0E93e615b4B7a71;
         
         address public factory;
         address public dead = 0x000000000000000000000000000000000000dEaD;
