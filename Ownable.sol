@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.8;
+pragma solidity 0.6.12;
 contract OwnableData {
     // V1 - V5: OK
     address public owner;
@@ -16,37 +16,27 @@ contract Ownable is OwnableData {
         emit OwnershipTransferred(address(0), msg.sender);
     }
 
-    // F1 - F9: OK
-    // C1 - C21: OK
-    function transferOwnership(address newOwner, bool direct, bool renounce) public onlyOwner {
-        if (direct) {
-            // Checks
-            require(newOwner != address(0) || renounce, "Ownable: zero address");
-
-            // Effects
-            emit OwnershipTransferred(owner, newOwner);
-            owner = newOwner;
-            pendingOwner = address(0);
-        } else {
-            // Effects
-            pendingOwner = newOwner;
-        }
-    }
-
-    // F1 - F9: OK
-    // C1 - C21: OK
-    function claimOwnership() public {
-        address _pendingOwner = pendingOwner;
-        
-        // Checks
-        require(msg.sender == _pendingOwner, "Ownable: caller != pending owner");
-
-        // Effects
-        emit OwnershipTransferred(owner, _pendingOwner);
-        owner = _pendingOwner;
+    function renounceOwnership() public onlyOwner { 
+        emit OwnershipTransferred(owner, address(0)); 
+        owner = address(0);
         pendingOwner = address(0);
     }
 
+
+    function transferOwnership(address newOwner) public onlyOwner {
+        require(address(0) != newOwner, "pendingOwner set to the zero address."); 
+        pendingOwner = newOwner;
+    }
+
+
+    function transferOwnershipDirectly(address newOwner) public onlyOwner { 
+        require(address(0)!=newOwner,"not allowed to transfer owner to address(0)"); 
+        owner = newOwner;
+        emit OwnershipTransferred(owner, newOwner);
+        pendingOwner = address(0);
+    }
+
+   
     // M1 - M5: OK
     // C1 - C21: OK
     modifier onlyOwner() {
@@ -55,10 +45,6 @@ contract Ownable is OwnableData {
     }
 
 
-    function renounceOwnership() public onlyOwner { 
-        emit OwnershipTransferred(owner, address(0)); 
-        owner = address(0);
-        pendingOwner = address(0);
-    }
+
     
 }

@@ -3,7 +3,7 @@
 */
 
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity 0.6.12;
 
 
 /*
@@ -1034,7 +1034,7 @@ library EnumerableSet {
     }
 }
 
-pragma solidity ^0.6.0;
+pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 abstract contract DelegateERC20 is ERC20 {

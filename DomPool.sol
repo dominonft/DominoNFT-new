@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.8;
+pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 import "./Ownable.sol";
 import "./IInvite.sol";
@@ -71,8 +71,6 @@ contract DomPool is Ownable, ERC20, ReentrancyGuard {
     uint256 public lastUpdateBlock;
     uint256 public rewardPerTokenStored;
 
-    bool public paused = false;
-    bool public transferPaused = false;
     // dom tokens created per block.
     uint256 public domsPerBlock;
 
@@ -97,16 +95,7 @@ contract DomPool is Ownable, ERC20, ReentrancyGuard {
     event WithdrawReward(address index, uint );
     event UpdateReward(address index,uint);
 
-    modifier notPause() {
-        require(paused == false, "Mining has been suspended");
-        _;
-    }
 
-    modifier transferNotPause() {
-        require(transferPaused == false, "transfer has been suspended");
-        _;
-    }
- 
     function initRate() internal {
         uint curRate = BASE_INIT;
         uint base = 100**11;
@@ -151,13 +140,6 @@ contract DomPool is Ownable, ERC20, ReentrancyGuard {
         _burn(_to,_amount);
     }
 
-    function setPause() public onlyOwner {
-        paused = !paused;
-    }
-
-    function setTransferPause() public onlyOwner {
-        transferPaused = !transferPaused;
-    }
 
     function setInviter(IInvite _inviter) public onlyOwner {
         inviter = _inviter;
@@ -273,7 +255,7 @@ contract DomPool is Ownable, ERC20, ReentrancyGuard {
         yopt = _totalSupply==0?0:yopt*cic/_totalSupply;
     }
     
-    function deposit(uint256 _pid, uint256 _amountT, uint256 _rid) public notPause nonReentrant{
+    function deposit(uint256 _pid, uint256 _amountT, uint256 _rid) public nonReentrant{
         Pool storage pool = pools[_pid];
         require(pool.status,"closed");
         updateReward(msg.sender);
@@ -316,7 +298,7 @@ contract DomPool is Ownable, ERC20, ReentrancyGuard {
         _amountR = _amountT*pool.maxWeight*pool.minWeight[_rid]/10000;
     }
 
-    function withdraw(uint256 _pid) public notPause {
+    function withdraw(uint256 _pid) public {
         withdrawReward();
         User storage user = users[msg.sender];
         uint256 amountA = user.deposits[_pid].amountA;
@@ -365,7 +347,7 @@ contract DomPool is Ownable, ERC20, ReentrancyGuard {
         emit WithdrawReward(msg.sender,reward);
     }
 
-    function emergencyWithdraw(uint256 _pid) public notPause {
+    function emergencyWithdraw(uint256 _pid) public {
         User storage user = users[msg.sender];
         uint256 amountA = user.deposits[_pid].amountA;
         uint256 amountB = user.deposits[_pid].amountB;
@@ -462,7 +444,7 @@ contract DomPool is Ownable, ERC20, ReentrancyGuard {
         }
     }
 
-    function _beforeTokenTransfer(address from, address to, uint256 ) internal transferNotPause override virtual {
+    function _beforeTokenTransfer(address from, address to, uint256 ) internal override virtual {
         if(from!=address(this)&&from!=address(inviter)) {
             updateReward(from);
         }

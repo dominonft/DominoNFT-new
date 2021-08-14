@@ -1,5 +1,5 @@
     // SPDX-License-Identifier: MIT
-    pragma solidity ^0.6.8;
+    pragma solidity 0.6.12;
     import "./PriceLibrary.sol";
     import "./SafeERC20.sol";
     import './IERC20.sol';
